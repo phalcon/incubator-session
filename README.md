@@ -97,6 +97,18 @@ This adapter uses the following table to store the data:
 
 ## Mongo
 
+Install PHP MongoDB Extension via pecl:
+
+```bash
+pecl install mongodb
+```
+
+After install, add the following line to your `php.ini` file:
+
+```
+extension=mongodb.so
+```
+
 This adapter uses a Mongo database backend to store session data:
 
 ```php
