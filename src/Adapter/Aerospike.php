@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Phalcon\Incubator\Session\Adapter;
 
-use Phalcon\Session\Adapter;
-use Phalcon\Session\Exception;
-use Phalcon\Session\AdapterInterface;
-use Phalcon\Cache\Frontend\Data as FrontendData;
 use Phalcon\Cache\Backend\Aerospike as AerospikeDb;
+use Phalcon\Cache\Frontend\Data as FrontendData;
+use Phalcon\Session\Adapter\AbstractAdapter;
+use Phalcon\Session\AdapterInterface;
+use Phalcon\Session\Exception;
 
 /**
  * Phalcon\Session\Adapter\Aerospike
@@ -54,7 +54,7 @@ use Phalcon\Cache\Backend\Aerospike as AerospikeDb;
  * echo $session->get('var');
  * </code>
  */
-class Aerospike extends Adapter implements AdapterInterface
+class Aerospike extends AbstractAdapter
 {
     /**
      * The Aerospike DB

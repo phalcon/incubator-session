@@ -13,15 +13,13 @@ declare(strict_types=1);
 
 namespace Phalcon\Incubator\Session\Adapter;
 
-use Phalcon\Session\Adapter;
-use Phalcon\Session\AdapterInterface;
+use Phalcon\Session\Adapter\AbstractAdapter;
 use Phalcon\Session\Exception;
 
 /**
- * Phalcon\Session\Adapter\Mongo
  * Mongo adapter for Phalcon\Session
  */
-class Mongo extends Adapter implements AdapterInterface
+class Mongo extends AbstractAdapter
 {
     /**
      * Current session data
@@ -33,7 +31,7 @@ class Mongo extends Adapter implements AdapterInterface
     /**
      * Class constructor.
      *
-     * @param  array     $options
+     * @param array $options
      * @throws Exception
      */
     public function __construct($options = null)
@@ -75,7 +73,7 @@ class Mongo extends Adapter implements AdapterInterface
     /**
      * {@inheritdoc}
      *
-     * @param  string $sessionId
+     * @param string $sessionId
      * @return string
      */
     public function read($sessionId)
@@ -98,8 +96,8 @@ class Mongo extends Adapter implements AdapterInterface
     /**
      * {@inheritdoc}
      *
-     * @param  string $sessionId
-     * @param  string $sessionData
+     * @param string $sessionId
+     * @param string $sessionData
      * @return bool
      */
     public function write($sessionId, $sessionData)
@@ -109,9 +107,9 @@ class Mongo extends Adapter implements AdapterInterface
         }
 
         $sessionData = [
-            '_id'      => $sessionId,
+            '_id' => $sessionId,
             'modified' => new \MongoDate(),
-            'data'     => $sessionData,
+            'data' => $sessionData,
         ];
 
         $this->getCollection()->save($sessionData);
@@ -125,7 +123,7 @@ class Mongo extends Adapter implements AdapterInterface
     public function destroy($sessionId = null)
     {
         if (is_null($sessionId)) {
-            $sessionId =$this->getId();
+            $sessionId = $this->getId();
         }
 
         $this->data = null;
@@ -136,7 +134,7 @@ class Mongo extends Adapter implements AdapterInterface
             ]
         );
 
-        return (bool) $remove['ok'];
+        return (bool)$remove['ok'];
     }
 
     /**
@@ -165,7 +163,7 @@ class Mongo extends Adapter implements AdapterInterface
 
         $remove = $this->getCollection()->remove($query);
 
-        return (bool) $remove['ok'];
+        return (bool)$remove['ok'];
     }
 
     /**
