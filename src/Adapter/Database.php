@@ -147,12 +147,11 @@ class Database extends AbstractAdapter
      */
     public function write($sessionId, $data): bool
     {
-        $options = $this->getOptions();
         $row = $this->connection->fetchOne(
             sprintf(
                 'SELECT COUNT(*) FROM %s WHERE %s = ?',
-                $this->connection->escapeIdentifier($options['table']),
-                $this->connection->escapeIdentifier($options['column_session_id'])
+                $this->connection->escapeIdentifier($this->options['table']),
+                $this->connection->escapeIdentifier($this->options['column_session_id'])
             ),
             Enum::FETCH_NUM,
             [$sessionId]
@@ -162,10 +161,10 @@ class Database extends AbstractAdapter
             return $this->connection->execute(
                 sprintf(
                     'UPDATE %s SET %s = ?, %s = ? WHERE %s = ?',
-                    $this->connection->escapeIdentifier($options['table']),
-                    $this->connection->escapeIdentifier($options['column_data']),
-                    $this->connection->escapeIdentifier($options['column_modified_at']),
-                    $this->connection->escapeIdentifier($options['column_session_id'])
+                    $this->connection->escapeIdentifier($this->options['table']),
+                    $this->connection->escapeIdentifier($this->options['column_data']),
+                    $this->connection->escapeIdentifier($this->options['column_modified_at']),
+                    $this->connection->escapeIdentifier($this->options['column_session_id'])
                 ),
                 [$data, time(), $sessionId]
             );
