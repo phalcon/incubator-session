@@ -40,7 +40,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Phalcon\\Incubator\\Acl\\": "src/"
+            "Phalcon\\Incubator\\Session\\": "src/"
         }
     },
     "minimum-stability": "dev",

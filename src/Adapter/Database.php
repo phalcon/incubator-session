@@ -19,7 +19,7 @@
   +------------------------------------------------------------------------+
 */
 
-namespace Phalcon\Session\Adapter;
+namespace Phalcon\Incubator\Session\Adapter;
 
 use Phalcon\Db;
 use Phalcon\Session\Adapter;

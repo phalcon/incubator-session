@@ -10,7 +10,8 @@
  *   KEY `modified` (`modified`)
  * ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8;
  */
-namespace Phalcon\Session\Adapter;
+
+namespace Phalcon\Incubator\Session\Adapter;
 
 use Phalcon\Session\Adapter;
 use Phalcon\Session\AdapterInterface;
