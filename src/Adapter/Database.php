@@ -177,11 +177,11 @@ class Database extends AbstractAdapter
         return $this->connection->execute(
             sprintf(
                 'INSERT INTO %s (%s, %s, %s, %s) VALUES (?, ?, ?, NULL)',
-                $this->connection->escapeIdentifier($options['table']),
-                $this->connection->escapeIdentifier($options['column_session_id']),
-                $this->connection->escapeIdentifier($options['column_data']),
-                $this->connection->escapeIdentifier($options['column_created_at']),
-                $this->connection->escapeIdentifier($options['column_modified_at'])
+                $this->connection->escapeIdentifier($this->options['table']),
+                $this->connection->escapeIdentifier($this->options['column_session_id']),
+                $this->connection->escapeIdentifier($this->options['column_data']),
+                $this->connection->escapeIdentifier($this->options['column_created_at']),
+                $this->connection->escapeIdentifier($this->options['column_modified_at'])
             ),
             [$sessionId, $data, time()]
         );
