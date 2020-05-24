@@ -62,6 +62,9 @@ class Database extends AbstractAdapter
             );
         }
 
+        /**
+         * TODO: rework
+         */
         $columns = ['session_id', 'data', 'created_at', 'modified_at'];
         foreach ($columns as $column) {
             $oColumn = "column_$column";
@@ -70,6 +73,7 @@ class Database extends AbstractAdapter
             }
         }
 
+        $this->options = $options;
         session_set_save_handler(
             [$this, 'open'],
             [$this, 'close'],
