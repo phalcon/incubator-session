@@ -120,7 +120,7 @@ class Database extends AbstractAdapter
 
         $row = $this->connection->fetchOne(
             sprintf(
-                'SELECT %s FROM %s WHERE %s = ? AND ADDTIME(COALESCE(%s, %s), %d) >= ?',
+                'SELECT %s FROM %s WHERE %s = ? AND DATE_ADD(COALESCE(%s, %s), INTERVAL %d SECOND) >= ?',
                 $this->connection->escapeIdentifier($this->options['column_data']),
                 $this->connection->escapeIdentifier($this->options['table']),
                 $this->connection->escapeIdentifier($this->options['column_session_id']),
@@ -215,7 +215,7 @@ class Database extends AbstractAdapter
     {
         return $this->connection->execute(
             sprintf(
-                'DELETE FROM %s WHERE ADDTIME(COALESCE(%s, %s), %d) < ?',
+                'DELETE FROM %s WHERE DATE_ADD(COALESCE(%s, %s), INTERVAL %d SECOND) < ?',
                 $this->connection->escapeIdentifier($this->options['table']),
                 $this->connection->escapeIdentifier($this->options['column_modified_at']),
                 $this->connection->escapeIdentifier($this->options['column_created_at']),
