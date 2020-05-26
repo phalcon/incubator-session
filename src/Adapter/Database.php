@@ -120,7 +120,7 @@ class Database extends AbstractAdapter
 
         $row = $this->connection->fetchOne(
             sprintf(
-                'SELECT %s FROM %s WHERE %s = ? AND COALESCE(%s, %s) + %d >= ?',
+                'SELECT %s FROM %s WHERE %s = ? AND ADDTIME(COALESCE(%s, %s), %d) >= ?',
                 $this->connection->escapeIdentifier($this->options['column_data']),
                 $this->connection->escapeIdentifier($this->options['table']),
                 $this->connection->escapeIdentifier($this->options['column_session_id']),
@@ -129,7 +129,7 @@ class Database extends AbstractAdapter
                 $maxLifetime
             ),
             Enum::FETCH_NUM,
-            [$sessionId, time()],
+            [$sessionId, date('Y-m-d H:i:s')],
             [Column::BIND_PARAM_STR, Column::BIND_PARAM_INT]
         );
 
@@ -166,7 +166,7 @@ class Database extends AbstractAdapter
                     $this->connection->escapeIdentifier($this->options['column_modified_at']),
                     $this->connection->escapeIdentifier($this->options['column_session_id'])
                 ),
-                [$data, time(), $sessionId]
+                [$data, date('Y-m-d H:i:s'), $sessionId]
             );
         }
 
@@ -176,14 +176,12 @@ class Database extends AbstractAdapter
 
         return $this->connection->execute(
             sprintf(
-                'INSERT INTO %s (%s, %s, %s, %s) VALUES (?, ?, ?, NULL)',
+                'INSERT INTO %s (%s, %s) VALUES (?, ?)',
                 $this->connection->escapeIdentifier($this->options['table']),
                 $this->connection->escapeIdentifier($this->options['column_session_id']),
-                $this->connection->escapeIdentifier($this->options['column_data']),
-                $this->connection->escapeIdentifier($this->options['column_created_at']),
-                $this->connection->escapeIdentifier($this->options['column_modified_at'])
+                $this->connection->escapeIdentifier($this->options['column_data'])
             ),
-            [$sessionId, $data, time()]
+            [$sessionId, $data]
         );
     }
 
@@ -217,13 +215,13 @@ class Database extends AbstractAdapter
     {
         return $this->connection->execute(
             sprintf(
-                'DELETE FROM %s WHERE COALESCE(%s, %s) + %d < ?',
+                'DELETE FROM %s WHERE ADDTIME(COALESCE(%s, %s), %d) < ?',
                 $this->connection->escapeIdentifier($this->options['table']),
                 $this->connection->escapeIdentifier($this->options['column_modified_at']),
                 $this->connection->escapeIdentifier($this->options['column_created_at']),
                 $maxLifeTime
             ),
-            [time()]
+            [date('Y-m-d H:i:s')]
         );
     }
 }

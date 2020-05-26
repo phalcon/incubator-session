@@ -89,8 +89,8 @@ This adapter uses the following table to store the data:
  CREATE TABLE `session_data` (
   `session_id` VARCHAR(35) NOT NULL,
   `data` text NOT NULL,
-  `created_at` INT unsigned NOT NULL,
-  `modified_at` INT unsigned DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `modified_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`session_id`)
 );
 ```
