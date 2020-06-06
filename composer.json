@@ -43,6 +43,11 @@
             "Phalcon\\Incubator\\Session\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Phalcon\\Incubator\\Session\\Tests\\Unit\\": "tests/unit/"
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "archive": {
