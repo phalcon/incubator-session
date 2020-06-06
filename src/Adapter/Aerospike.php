@@ -174,54 +174,47 @@ class Aerospike extends AbstractAdapter
     }
 
     /**
-     * {@inheritdoc}
-     *
+     * @param string $savePath
+     * @param string $sessionName
      * @return bool
      */
-    public function open()
+    public function open($savePath, $sessionName): bool
     {
         return true;
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @return bool
      */
-    public function close()
+    public function close(): bool
     {
         return true;
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param string $sessionId Session variable name
      * @return string
      */
-    public function read($sessionId)
+    public function read($sessionId): string
     {
         return $this->db->get($sessionId, $this->lifetime);
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param string $sessionId Session variable name
-     * @param string $data      Session data
+     * @param string $data Session data
+     * @return bool
      */
-    public function write($sessionId, $data)
+    public function write($sessionId, $data): bool
     {
         return $this->db->save($sessionId, $data, $this->lifetime);
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param string $sessionId Session variable name [Optional]
      * @return bool
      */
-    public function destroy($sessionId = null)
+    public function destroy($sessionId = null): bool
     {
         if (null === $sessionId) {
             $sessionId = $this->getId();
@@ -239,11 +232,10 @@ class Aerospike extends AbstractAdapter
     }
 
     /**
-     * {@inheritdoc}
-     *
+     * @param int $maxLifeTime
      * @return bool
      */
-    public function gc()
+    public function gc($maxLifeTime): bool
     {
         return true;
     }

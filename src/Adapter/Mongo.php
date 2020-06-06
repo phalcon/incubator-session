@@ -53,30 +53,28 @@ class Mongo extends AbstractAdapter
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @return boolean
+     * @param string $savePath
+     * @param string $sessionName
+     * @return bool
      */
-    public function open()
+    public function open($savePath, $sessionName): bool
     {
         return true;
     }
 
     /**
-     * {@inheritdoc}
+     * @return bool
      */
-    public function close()
+    public function close(): bool
     {
         return true;
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param string $sessionId
      * @return string
      */
-    public function read($sessionId)
+    public function read($sessionId): string
     {
         $sessionData = $this->getCollection()->findOne(
             [
@@ -94,13 +92,14 @@ class Mongo extends AbstractAdapter
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param string $sessionId
      * @param string $sessionData
      * @return bool
+     * @throws \MongoCursorException
+     * @throws \MongoCursorTimeoutException
+     * @throws \MongoException
      */
-    public function write($sessionId, $sessionData)
+    public function write($sessionId, $sessionData): bool
     {
         if ($this->data === $sessionData) {
             return true;
@@ -118,9 +117,12 @@ class Mongo extends AbstractAdapter
     }
 
     /**
-     * {@inheritdoc}
+     * @param null $sessionId
+     * @return bool
+     * @throws \MongoCursorException
+     * @throws \MongoCursorTimeoutException
      */
-    public function destroy($sessionId = null)
+    public function destroy($sessionId = null): bool
     {
         if (is_null($sessionId)) {
             $sessionId = $this->getId();
@@ -138,10 +140,12 @@ class Mongo extends AbstractAdapter
     }
 
     /**
-     * {@inheritdoc}
      * @param string $maxLifetime
+     * @return bool
+     * @throws \MongoCursorException
+     * @throws \MongoCursorTimeoutException
      */
-    public function gc($maxLifetime)
+    public function gc($maxLifetime): bool
     {
         $minAge = new \DateTime();
 
