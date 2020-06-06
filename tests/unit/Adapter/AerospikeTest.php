@@ -14,14 +14,14 @@ declare(strict_types=1);
 namespace Phalcon\Incubator\Session\Tests\Unit\Adapter;
 
 use Codeception\Test\Unit;
-use Phalcon\Incubator\Session\Adapter\Database;
+use Phalcon\Incubator\Session\Adapter\Aerospike;
 use Phalcon\Session\Adapter\AbstractAdapter;
 
-class DatabaseTest extends Unit
+class AerospikeTest extends Unit
 {
     public function testImplementation(): void
     {
-        $class = $this->createMock(Database::class);
+        $class = $this->createMock(Aerospike::class);
 
         $this->assertInstanceOf(AbstractAdapter::class, $class);
     }
