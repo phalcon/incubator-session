@@ -20,7 +20,7 @@ final class MongoCest
 {
     public function testWrite(\FunctionalTester $I): void
     {
-        $client = new Client('mongodb+srv://root:example@127.0.0.1/test?retryWrites=true&w=majority');
+        $client = new Client('mongodb+srv://root:example@mongodb/test?retryWrites=true&w=majority');
 
         $mongo = new Mongo($client->test->session_data);
 
