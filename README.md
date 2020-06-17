@@ -104,7 +104,9 @@ use Phalcon\Incubator\Session\Adapter\Mongo as MongoSession;
 
 $di->set('session', function () {
     // Create a connection to mongo
-    $mongo = new \Mongo();
+    $mongo = new \MongoDB\Client(
+        'mongodb+srv://<username>:<password>@<cluster-address>/test?retryWrites=true&w=majority'
+    );
 
     // Passing a collection to the adapter
     $session = new MongoSession([
