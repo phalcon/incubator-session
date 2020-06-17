@@ -13,14 +13,22 @@ declare(strict_types=1);
 
 namespace Phalcon\Incubator\Session\Adapter;
 
+use DateInterval;
+use DateTime;
+use MongoDB\BSON\UTCDateTime;
+use MongoDB\Collection;
 use Phalcon\Session\Adapter\AbstractAdapter;
-use Phalcon\Session\Exception;
 
 /**
  * Mongo adapter for Phalcon\Session
  */
 class Mongo extends AbstractAdapter
 {
+    /**
+     * @var Collection
+     */
+    protected $collection;
+
     /**
      * Current session data
      *
@@ -31,14 +39,11 @@ class Mongo extends AbstractAdapter
     /**
      * Class constructor.
      *
-     * @param array $options
-     * @throws Exception
+     * @param Collection $collection
      */
-    public function __construct($options = null)
+    public function __construct(Collection $collection)
     {
-        if (!isset($options['collection'])) {
-            throw new Exception("The parameter 'collection' is required");
-        }
+        $this->collection = $collection;
 
         session_set_save_handler(
             [$this, 'open'],
@@ -48,8 +53,6 @@ class Mongo extends AbstractAdapter
             [$this, 'destroy'],
             [$this, 'gc']
         );
-
-        parent::__construct($options);
     }
 
     /**
@@ -76,11 +79,9 @@ class Mongo extends AbstractAdapter
      */
     public function read($sessionId): string
     {
-        $sessionData = $this->getCollection()->findOne(
-            [
-                '_id' => $sessionId,
-            ]
-        );
+        $sessionData = $this->collection->findOne([
+            '_id' => $sessionId,
+        ]);
 
         if (!isset($sessionData['data'])) {
             return '';
@@ -95,9 +96,6 @@ class Mongo extends AbstractAdapter
      * @param string $sessionId
      * @param string $sessionData
      * @return bool
-     * @throws \MongoCursorException
-     * @throws \MongoCursorTimeoutException
-     * @throws \MongoException
      */
     public function write($sessionId, $sessionData): bool
     {
@@ -105,78 +103,43 @@ class Mongo extends AbstractAdapter
             return true;
         }
 
-        $sessionData = [
-            '_id' => $sessionId,
-            'modified' => new \MongoDate(),
-            'data' => $sessionData,
-        ];
-
-        $this->getCollection()->save($sessionData);
-
-        return true;
-    }
-
-    /**
-     * @param null $sessionId
-     * @return bool
-     * @throws \MongoCursorException
-     * @throws \MongoCursorTimeoutException
-     */
-    public function destroy($sessionId = null): bool
-    {
-        if (is_null($sessionId)) {
-            $sessionId = $this->getId();
-        }
-
-        $this->data = null;
-
-        $remove = $this->getCollection()->remove(
-            [
-                '_id' => $sessionId,
-            ]
+        $updateResult = $this->collection->updateOne(
+            ['_id' => $sessionId],
+            ['$set' => ['modified' => new UTCDateTime(), 'data' => $sessionData]]
         );
 
-        return (bool)$remove['ok'];
+        return $updateResult->getModifiedCount() > 0;
     }
 
     /**
-     * @param string $maxLifetime
+     * @param string $sessionId
      * @return bool
-     * @throws \MongoCursorException
-     * @throws \MongoCursorTimeoutException
+     */
+    public function destroy($sessionId): bool
+    {
+        $this->data = null;
+        $deleteResult = $this->collection->deleteOne(['_id' => $sessionId]);
+
+        return $deleteResult->getDeletedCount() > 0;
+    }
+
+    /**
+     * @param mixed $maxLifetime
+     * @return bool
+     * @throws \Exception
      */
     public function gc($maxLifetime): bool
     {
-        $minAge = new \DateTime();
+        $date = new DateTime();
+        $date->sub(new DateInterval('PT' . $maxLifetime . 'S'));
+        $minAgeMongo = new UTCDateTime($date->getTimestamp());
 
-        $minAge->sub(
-            new \DateInterval(
-                'PT' . $maxLifetime . 'S'
-            )
-        );
-
-        $minAgeMongo = new \MongoDate(
-            $minAge->getTimestamp()
-        );
-
-        $query = [
+        $deleteResult = $this->collection->deleteMany([
             'modified' => [
                 '$lte' => $minAgeMongo,
             ],
-        ];
+        ]);
 
-        $remove = $this->getCollection()->remove($query);
-
-        return (bool)$remove['ok'];
-    }
-
-    /**
-     * @return \MongoCollection
-     */
-    protected function getCollection()
-    {
-        $options = $this->getOptions();
-
-        return $options['collection'];
+        return $deleteResult->getDeletedCount() > 0;
     }
 }
