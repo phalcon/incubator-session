@@ -4,9 +4,55 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f64851a31a187d7d2b6c192d0d3892c1",
+    "content-hash": "f7700a1f248ef90a9014a3a3e1afeda7",
     "packages": [],
     "packages-dev": [
+        {
+            "name": "aerospike/aerospike-client-php",
+            "version": "7.5.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aerospike/aerospike-client-php.git",
+                "reference": "ce4930e4e8c7f6c2adfbcec64225ef90c1e31816"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aerospike/aerospike-client-php/zipball/ce4930e4e8c7f6c2adfbcec64225ef90c1e31816",
+                "reference": "ce4930e4e8c7f6c2adfbcec64225ef90c1e31816",
+                "shasum": ""
+            },
+            "require": {
+                "php": "~7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Aerospike\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Aerospike",
+                    "homepage": "http://www.aerospike.com"
+                },
+                {
+                    "name": "Contributors",
+                    "homepage": "https://github.com/aerospike/aerospike-client-php/graphs/contributors"
+                }
+            ],
+            "description": "The Aerospike PHP client as a C-extension for PHP7",
+            "homepage": "http://www.aerospike.com/docs/client/php/",
+            "keywords": [
+                "aerospike",
+                "database",
+                "extension"
+            ],
+            "time": "2020-03-10T18:12:51+00:00"
+        },
         {
             "name": "amphp/amp",
             "version": "v2.4.4",

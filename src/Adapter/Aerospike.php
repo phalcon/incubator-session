@@ -13,10 +13,8 @@ declare(strict_types=1);
 
 namespace Phalcon\Incubator\Session\Adapter;
 
-use Phalcon\Cache\Backend\Aerospike as AerospikeDb;
-use Phalcon\Cache\Frontend\Data as FrontendData;
+use Aerospike as AerospikeDb;
 use Phalcon\Session\Adapter\AbstractAdapter;
-use Phalcon\Session\AdapterInterface;
 use Phalcon\Session\Exception;
 
 /**
@@ -97,7 +95,6 @@ class Aerospike extends AbstractAdapter
      * @param array $options Constructor options
      *
      * @throws \Phalcon\Session\Exception
-     * @throws \Phalcon\Cache\Exception
      */
     public function __construct(array $options)
     {
@@ -136,11 +133,6 @@ class Aerospike extends AbstractAdapter
         }
 
         $this->db = new AerospikeDb(
-            new FrontendData(
-                [
-                    'lifetime' => $this->lifetime,
-                ]
-            ),
             [
                 'hosts'      => $options['hosts'],
                 'namespace'  => $this->namespace,
@@ -151,8 +143,6 @@ class Aerospike extends AbstractAdapter
             ]
         );
 
-        parent::__construct($options);
-
         session_set_save_handler(
             [$this, 'open'],
             [$this, 'close'],
@@ -161,16 +151,6 @@ class Aerospike extends AbstractAdapter
             [$this, 'destroy'],
             [$this, 'gc']
         );
-    }
-
-    /**
-     * Gets the Aerospike instance.
-     *
-     * @return \Aerospike
-     */
-    public function getDb()
-    {
-        return $this->db->getDb();
     }
 
     /**
