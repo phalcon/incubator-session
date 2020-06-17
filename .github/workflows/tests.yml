@@ -9,6 +9,11 @@ jobs:
     env:
       extensions: mbstring, intl, json, phalcon4, redis, mongodb, xdebug
       key: cache-v0.0.2
+    services:
+      mongodb:
+        image: mongo:3.4.23
+        ports:
+          - 27017:27017
     strategy:
       fail-fast: false
       matrix:
