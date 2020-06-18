@@ -103,7 +103,7 @@ class Mongo extends AbstractAdapter
             return true;
         }
 
-        $updateResult = $this->collection->updateOne(
+        $updateResult = $this->collection->replaceOne(
             ['_id' => $sessionId],
             ['$set' => ['modified' => new UTCDateTime(), 'data' => $sessionData]]
         );
