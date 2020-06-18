@@ -223,7 +223,7 @@ class Database extends AbstractAdapter
                 $this->getTableName(),
                 $this->connection->escapeIdentifier($this->columns['modified_at']),
                 $this->connection->escapeIdentifier($this->columns['created_at']),
-                $maxLifeTime
+                (int)$maxLifeTime
             ),
             [date('Y-m-d H:i:s')]
         );
