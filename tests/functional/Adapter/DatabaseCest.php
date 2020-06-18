@@ -23,12 +23,17 @@ final class DatabaseCest
 
     public function __construct()
     {
+        $dbFile = codecept_output_dir('test.sqlite');
+        if (file_exists($dbFile)) {
+            unlink($dbFile);
+        }
+
         $this->connection = new Sqlite([
-            'dbname' => codecept_output_dir('test.sqlite'),
+            'dbname' => $dbFile,
         ]);
 
         $sql = <<<SQL
-CREATE TABLE `session_data` (
+CREATE TABLE IF NOT EXISTS `session_data` (
     `session_id` VARCHAR(35) NOT NULL,
     `data` text NOT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -58,13 +63,22 @@ SQL;
     {
         $class = new Database($this->connection);
 
-        $I->assertTrue($class->read('un-existed'));
+        $I->assertSame('', $class->read('un-existed'));
+    }
+
+    public function writeNotOpen(FunctionalTester $I): void
+    {
+        $sessionId = bin2hex(random_bytes(32));
+        $class = new Database($this->connection);
+
+        $I->assertFalse($class->write($sessionId, 'data'));
     }
 
     public function write(FunctionalTester $I): void
     {
         $sessionId = bin2hex(random_bytes(32));
         $class = new Database($this->connection);
+        $class->open(codecept_output_dir(), $sessionId);
 
         $I->assertTrue($class->write($sessionId, 'data'));
     }
@@ -74,12 +88,5 @@ SQL;
         $class = new Database($this->connection);
 
         $I->assertIsBool($class->destroy('destroy'));
-    }
-
-    public function gc(FunctionalTester $I): void
-    {
-        $class = new Database($this->connection);
-
-        $I->assertIsBool($class->gc(0));
     }
 }
