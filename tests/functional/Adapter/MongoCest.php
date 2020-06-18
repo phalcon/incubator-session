@@ -54,6 +54,8 @@ final class MongoCest
         $mongo->open(codecept_output_dir(), $sessionid);
 
         $I->assertTrue($mongo->write($sessionid, $sessionData));
+        // Assert that data is identical and just returns true
+        $I->assertTrue($mongo->write($sessionid, $sessionData));
         $I->assertSame($sessionData, $mongo->read($sessionid));
     }
 }

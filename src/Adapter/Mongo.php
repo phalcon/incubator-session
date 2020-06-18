@@ -103,7 +103,18 @@ class Mongo extends AbstractAdapter
             return true;
         }
 
-        $updateResult = $this->collection->replaceOne(
+        $countDocuments = $this->collection->countDocuments(['_id' => $sessionId]);
+        if ($countDocuments === 0) {
+            $insertResult = $this->collection->insertOne([
+                '_id' => $sessionId,
+                'modified' => null,
+                'data' => $sessionData,
+            ]);
+
+            return $insertResult->getInsertedCount() > 0;
+        }
+
+        $updateResult = $this->collection->updateOne(
             ['_id' => $sessionId],
             ['$set' => ['modified' => new UTCDateTime(), 'data' => $sessionData]]
         );
