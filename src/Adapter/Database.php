@@ -79,9 +79,6 @@ class Database extends AbstractAdapter
         $this->tableName = $tableName;
         $this->prepareColumns($columns);
 
-        /**
-         * @psalm-suppress InvalidScalarArgument
-         */
         session_set_save_handler(
             [$this, 'open'],
             [$this, 'close'],
@@ -214,7 +211,7 @@ class Database extends AbstractAdapter
     }
 
     /**
-     * @param int $maxLifeTime
+     * @param mixed $maxLifeTime
      * @return bool
      */
     public function gc($maxLifeTime): bool
