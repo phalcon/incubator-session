@@ -14,20 +14,30 @@ declare(strict_types=1);
 namespace Phalcon\Incubator\Session\Adapter;
 
 use Phalcon\Db\Adapter\AbstractAdapter as DbAbstractAdapter;
+use Phalcon\Db\Column;
 use Phalcon\Db\Enum;
 use Phalcon\Session\Adapter\AbstractAdapter;
-use Phalcon\Db\Column;
-use Phalcon\Session\Exception;
 
 /**
  * Database adapter for Phalcon\Session
  */
 class Database extends AbstractAdapter
 {
+    public const DEFAULT_TABLE_NAME = 'session_data';
+
     /**
+     * Database connection
+     *
      * @var DbAbstractAdapter
      */
     protected $connection;
+
+    /**
+     * Database Table name
+     *
+     * @var string
+     */
+    protected $tableName;
 
     /**
      * Check if session started
@@ -39,41 +49,36 @@ class Database extends AbstractAdapter
     /**
      * @var array
      */
-    protected $options = [];
+    protected $defaultColumns = [
+        'session_id',
+        'data',
+        'created_at',
+        'modified_at',
+    ];
 
     /**
-     * @param array $options
-     * @throws Exception
+     * Final columns
+     *
+     * After applying user custom columns from $columns
+     *
+     * @var array
      */
-    public function __construct(array $options = null)
-    {
-        if (!isset($options['db']) || !$options['db'] instanceof DbAbstractAdapter) {
-            throw new Exception(
-                'Parameter "db" is required and it must be an instance of Phalcon\DbAdapter\AdapterInterface'
-            );
-        }
+    protected $columns = [];
 
-        $this->connection = $options['db'];
-        unset($options['db']);
+    /**
+     * @param DbAbstractAdapter $connection
+     * @param string $tableName
+     * @param array $columns
+     */
+    public function __construct(
+        DbAbstractAdapter $connection,
+        string $tableName = self::DEFAULT_TABLE_NAME,
+        array $columns = []
+    ) {
+        $this->connection = $connection;
+        $this->tableName = $tableName;
+        $this->prepareColumns($columns);
 
-        if (empty($options['table']) || !is_string($options['table'])) {
-            throw new Exception(
-                "Parameter 'table' is required and it must be a non empty string"
-            );
-        }
-
-        /**
-         * TODO: rework
-         */
-        $columns = ['session_id', 'data', 'created_at', 'modified_at'];
-        foreach ($columns as $column) {
-            $oColumn = "column_$column";
-            if (empty($options[$oColumn]) || !is_string($options[$oColumn])) {
-                $options[$oColumn] = $column;
-            }
-        }
-
-        $this->options = $options;
         session_set_save_handler(
             [$this, 'open'],
             [$this, 'close'],
@@ -112,25 +117,24 @@ class Database extends AbstractAdapter
      */
     public function read($sessionId): string
     {
-        $maxLifetime = (int)ini_get('session.gc_maxlifetime');
-
         if (!$this->started) {
             return '';
         }
 
+        $maxLifetime = (int)ini_get('session.gc_maxlifetime');
         $row = $this->connection->fetchOne(
             sprintf(
                 'SELECT %s FROM %s WHERE %s = ? AND DATE_ADD(COALESCE(%s, %s), INTERVAL %d SECOND) >= ?',
-                $this->connection->escapeIdentifier($this->options['column_data']),
-                $this->connection->escapeIdentifier($this->options['table']),
-                $this->connection->escapeIdentifier($this->options['column_session_id']),
-                $this->connection->escapeIdentifier($this->options['column_modified_at']),
-                $this->connection->escapeIdentifier($this->options['column_created_at']),
+                $this->connection->escapeIdentifier($this->columns['data']),
+                $this->getTableName(),
+                $this->connection->escapeIdentifier($this->columns['session_id']),
+                $this->connection->escapeIdentifier($this->columns['modified_at']),
+                $this->connection->escapeIdentifier($this->columns['created_at']),
                 $maxLifetime
             ),
             Enum::FETCH_NUM,
             [$sessionId, date('Y-m-d H:i:s')],
-            [Column::BIND_PARAM_STR, Column::BIND_PARAM_INT]
+            [Column::BIND_PARAM_STR, Column::BIND_PARAM_STR]
         );
 
         if (empty($row)) {
@@ -150,8 +154,8 @@ class Database extends AbstractAdapter
         $row = $this->connection->fetchOne(
             sprintf(
                 'SELECT COUNT(*) FROM %s WHERE %s = ?',
-                $this->connection->escapeIdentifier($this->options['table']),
-                $this->connection->escapeIdentifier($this->options['column_session_id'])
+                $this->getTableName(),
+                $this->connection->escapeIdentifier($this->columns['session_id'])
             ),
             Enum::FETCH_NUM,
             [$sessionId]
@@ -161,10 +165,10 @@ class Database extends AbstractAdapter
             return $this->connection->execute(
                 sprintf(
                     'UPDATE %s SET %s = ?, %s = ? WHERE %s = ?',
-                    $this->connection->escapeIdentifier($this->options['table']),
-                    $this->connection->escapeIdentifier($this->options['column_data']),
-                    $this->connection->escapeIdentifier($this->options['column_modified_at']),
-                    $this->connection->escapeIdentifier($this->options['column_session_id'])
+                    $this->getTableName(),
+                    $this->connection->escapeIdentifier($this->columns['data']),
+                    $this->connection->escapeIdentifier($this->columns['modified_at']),
+                    $this->connection->escapeIdentifier($this->columns['session_id'])
                 ),
                 [$data, date('Y-m-d H:i:s'), $sessionId]
             );
@@ -177,9 +181,9 @@ class Database extends AbstractAdapter
         return $this->connection->execute(
             sprintf(
                 'INSERT INTO %s (%s, %s) VALUES (?, ?)',
-                $this->connection->escapeIdentifier($this->options['table']),
-                $this->connection->escapeIdentifier($this->options['column_session_id']),
-                $this->connection->escapeIdentifier($this->options['column_data'])
+                $this->getTableName(),
+                $this->connection->escapeIdentifier($this->columns['session_id']),
+                $this->connection->escapeIdentifier($this->columns['data'])
             ),
             [$sessionId, $data]
         );
@@ -200,8 +204,8 @@ class Database extends AbstractAdapter
         return $this->connection->execute(
             sprintf(
                 'DELETE FROM %s WHERE %s = ?',
-                $this->connection->escapeIdentifier($this->options['table']),
-                $this->connection->escapeIdentifier($this->options['column_session_id'])
+                $this->getTableName(),
+                $this->connection->escapeIdentifier($this->columns['session_id'])
             ),
             [$sessionId]
         );
@@ -216,12 +220,38 @@ class Database extends AbstractAdapter
         return $this->connection->execute(
             sprintf(
                 'DELETE FROM %s WHERE DATE_ADD(COALESCE(%s, %s), INTERVAL %d SECOND) < ?',
-                $this->connection->escapeIdentifier($this->options['table']),
-                $this->connection->escapeIdentifier($this->options['column_modified_at']),
-                $this->connection->escapeIdentifier($this->options['column_created_at']),
+                $this->getTableName(),
+                $this->connection->escapeIdentifier($this->columns['modified_at']),
+                $this->connection->escapeIdentifier($this->columns['created_at']),
                 $maxLifeTime
             ),
             [date('Y-m-d H:i:s')]
         );
+    }
+
+    /**
+     * Get escaped table name
+     *
+     * @return string
+     */
+    protected function getTableName(): string
+    {
+        return $this->connection->escapeIdentifier($this->tableName);
+    }
+
+    /**
+     * Pick default columns and merge with custom (if any passed)
+     *
+     * @param array $columns
+     */
+    protected function prepareColumns(array $columns): void
+    {
+        foreach ($this->defaultColumns as $defaultColumn) {
+            if (isset($columns[$defaultColumn])) {
+                $this->columns[$defaultColumn] = $columns[$defaultColumn];
+            } else {
+                $this->columns[$defaultColumn] = $defaultColumn;
+            }
+        }
     }
 }

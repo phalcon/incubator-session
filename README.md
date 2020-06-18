@@ -20,11 +20,7 @@ $di->set('session', function () {
         'dbname'   => 'test',
     ]);
 
-    $session = new Database([
-        'db'    => $connection,
-        'table' => 'session_data',
-    ]);
-
+    $session = new Database($connection, 'session_data');
     $session->start();
 
     return $session;
