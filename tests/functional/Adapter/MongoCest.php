@@ -45,18 +45,18 @@ final class MongoCest
 
     public function testWriteDuplicate(FunctionalTester $I): void
     {
-        $sessionid = bin2hex(random_bytes(32));
+        $sessionId = bin2hex(random_bytes(32));
         $sessionData = 'value';
 
         $client = new Client('mongodb://127.0.0.1:27017');
         $mongo = new Mongo($client->test->session_data);
 
-        $mongo->open(codecept_output_dir(), $sessionid);
+        $mongo->open(codecept_output_dir(), $sessionId);
 
-        $I->assertTrue($mongo->write($sessionid, $sessionData));
+        $I->assertTrue($mongo->write($sessionId, $sessionData));
         // Assert that data is identical and just returns true
-        $I->assertTrue($mongo->write($sessionid, $sessionData));
-        $I->assertSame($sessionData, $mongo->read($sessionid));
+        $I->assertTrue($mongo->write($sessionId, $sessionData));
+        $I->assertSame($sessionData, $mongo->read($sessionId));
     }
 
     public function testWriteUpdate(FunctionalTester $I): void
