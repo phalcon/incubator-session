@@ -127,16 +127,15 @@ class Database extends AbstractAdapter
         $maxLifetime = (int)ini_get('session.gc_maxlifetime');
         $row = $this->connection->fetchOne(
             sprintf(
-                'SELECT %s FROM %s WHERE %s = ? AND DATE_ADD(COALESCE(%s, %s), INTERVAL %d SECOND) >= ?',
+                'SELECT %s FROM %s WHERE %s = ? AND COALESCE(%s, %s) >= ?',
                 $this->connection->escapeIdentifier($this->columns['data']),
                 $this->getTableName(),
                 $this->connection->escapeIdentifier($this->columns['session_id']),
                 $this->connection->escapeIdentifier($this->columns['modified_at']),
-                $this->connection->escapeIdentifier($this->columns['created_at']),
-                $maxLifetime
+                $this->connection->escapeIdentifier($this->columns['created_at'])
             ),
             Enum::FETCH_NUM,
-            [$sessionId, date('Y-m-d H:i:s')],
+            [$sessionId, date('Y-m-d H:i:s', strtotime('-' . $maxLifetime . ' seconds'))],
             [Column::BIND_PARAM_STR, Column::BIND_PARAM_STR]
         );
 
@@ -222,13 +221,12 @@ class Database extends AbstractAdapter
     {
         return $this->connection->execute(
             sprintf(
-                'DELETE FROM %s WHERE DATE_ADD(COALESCE(%s, %s), INTERVAL %d SECOND) < ?',
+                'DELETE FROM %s WHERE COALESCE(%s, %s) < ?',
                 $this->getTableName(),
                 $this->connection->escapeIdentifier($this->columns['modified_at']),
-                $this->connection->escapeIdentifier($this->columns['created_at']),
-                (int)$maxLifeTime
+                $this->connection->escapeIdentifier($this->columns['created_at'])
             ),
-            [date('Y-m-d H:i:s')]
+            [date('Y-m-d H:i:s', strtotime('-' . $maxLifeTime . ' seconds'))]
         );
     }
 

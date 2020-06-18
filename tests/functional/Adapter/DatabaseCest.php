@@ -45,6 +45,15 @@ SQL;
         $this->connection->execute($sql);
     }
 
+    public function setCustomColumn(FunctionalTester $I): void
+    {
+        $class = new Database($this->connection, Database::DEFAULT_TABLE_NAME, [
+            'session_id' => 'session_id',
+        ]);
+
+        $I->assertTrue($class->open(codecept_output_dir(), 'session-name'));
+    }
+
     public function open(FunctionalTester $I): void
     {
         $class = new Database($this->connection);
@@ -74,7 +83,7 @@ SQL;
         $I->assertFalse($class->write($sessionId, 'data'));
     }
 
-    public function write(FunctionalTester $I): void
+    public function writeNew(FunctionalTester $I): void
     {
         $sessionId = bin2hex(random_bytes(32));
         $class = new Database($this->connection);
@@ -83,10 +92,42 @@ SQL;
         $I->assertTrue($class->write($sessionId, 'data'));
     }
 
-    public function destroy(FunctionalTester $I): void
+    public function writeUpdate(FunctionalTester $I): void
+    {
+        $sessionId = bin2hex(random_bytes(32));
+        $oldData = 'data';
+        $newData = 'new-data';
+
+        $class = new Database($this->connection);
+        $class->open(codecept_output_dir(), $sessionId);
+
+        $I->assertTrue($class->write($sessionId, $oldData));
+        $I->assertSame($oldData, $class->read($sessionId));
+        $I->assertTrue($class->write($sessionId, $newData));
+        $I->assertSame($newData, $class->read($sessionId));
+    }
+
+    public function destroyNotStarted(FunctionalTester $I): void
     {
         $class = new Database($this->connection);
 
-        $I->assertIsBool($class->destroy('destroy'));
+        $I->assertTrue($class->destroy('destroy'));
+    }
+
+    public function destroyStarted(FunctionalTester $I): void
+    {
+        $sessionId = bin2hex(random_bytes(32));
+        $class = new Database($this->connection);
+        $class->open(codecept_output_dir(), $sessionId);
+        $class->write($sessionId, 'data');
+
+        $I->assertTrue($class->destroy('destroy'));
+    }
+
+    public function gc(FunctionalTester $I): void
+    {
+        $class = new Database($this->connection);
+
+        $I->assertTrue($class->gc(0));
     }
 }
