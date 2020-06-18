@@ -2,45 +2,6 @@
 
 Usage examples of the adapters available here:
 
-## Aerospike
-
-This adapter uses an Aerospike Database to store session data.
-
-To use this adapter on your machine, you need at least:
-
-- [Aerospike Server][1] >= 3.5.3
-- [Aerospike PHP Extension][2]
-
-Usage:
-
-```php
-use Phalcon\Incubator\Session\Adapter\Aerospike as SessionHandler;
-
-$di->set('session', function () {
-    $session = new SessionHandler([
-        'hosts' => [
-            [
-                'addr' => '127.0.0.1',
-                'port' => 3000,
-            ]
-        ],
-        'persistent' => true,
-        'namespace'  => 'test',
-        'prefix'     => 'session_',
-        'lifetime'   => 8600,
-        'uniqueId'   => '3Hf90KdjQ18',
-        'options'    => [
-            \Aerospike::OPT_CONNECT_TIMEOUT => 1250,
-            \Aerospike::OPT_WRITE_TIMEOUT   => 1500,
-        ],
-    ]);
-
-    $session->start();
-
-    return $session;
-});
-```
-
 
 ## Database
 
@@ -82,6 +43,7 @@ This adapter uses the following table to store the data:
   PRIMARY KEY (`session_id`)
 );
 ```
+
 
 ## Mongo
 

@@ -36,8 +36,7 @@
         "codeception/codeception": "^4.1",
         "codeception/module-asserts": "^1.0.0",
         "mongodb/mongodb": "^1.6",
-        "phpstan/phpstan": "^0.12.18",
-        "aerospike/aerospike-client-php": "^7.5"
+        "phpstan/phpstan": "^0.12.18"
     },
     "autoload": {
         "psr-4": {
