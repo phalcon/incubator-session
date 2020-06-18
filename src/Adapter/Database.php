@@ -90,8 +90,8 @@ class Database extends AbstractAdapter
     }
 
     /**
-     * @param $savePath
-     * @param $sessionName
+     * @param mixed $savePath
+     * @param mixed $sessionName
      * @return bool
      */
     public function open($savePath, $sessionName): bool

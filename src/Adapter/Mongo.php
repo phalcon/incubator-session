@@ -32,9 +32,9 @@ class Mongo extends AbstractAdapter
     /**
      * Current session data
      *
-     * @var string
+     * @var string|null
      */
-    protected $data;
+    protected $data = null;
 
     /**
      * Class constructor.
