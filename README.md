@@ -40,6 +40,12 @@ This adapter uses the following table to store the data:
 );
 ```
 
+Upgrading from phalcon/incubator 3.4 will require changes to the session_data table:
+
+```
+ALTER TABLE session_data MODIFY COLUMN created_at TIMESTAMP DEFAULT current_timestamp() NOT NULL;
+ALTER TABLE session_data MODIFY COLUMN modified_at TIMESTAMP DEFAULT NULL NULL;
+```
 
 ## Mongo
 
