@@ -32,8 +32,9 @@ final class DatabaseCest
             'dbname' => $dbFile,
         ]);
 
+        $tableName = Database::DEFAULT_TABLE_NAME;
         $sql = <<<SQL
-CREATE TABLE IF NOT EXISTS `session_data` (
+CREATE TABLE IF NOT EXISTS `$tableName` (
     `session_id` VARCHAR(35) NOT NULL,
     `data` text NOT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -129,5 +130,60 @@ SQL;
         $class = new Database($this->connection);
 
         $I->assertTrue($class->gc(0));
+    }
+
+    public function lazyWriteEnabled(FunctionalTester $I): void
+    {
+        $sessionId = bin2hex(random_bytes(32));
+        $class = new Database($this->connection);
+        $class->open(codecept_output_dir(), $sessionId);
+
+        $date1 = $this->connection->fetchColumn(
+            'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
+        );
+
+        ini_set('session.lazy_write', '1');
+
+        sleep(1);
+        $I->assertTrue($class->write($sessionId, 'data'));
+        $date2 = $this->connection->fetchColumn(
+            'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
+        );
+        $I->assertNotSame($date1, $date2);
+
+        sleep(1);
+        $I->assertFalse($class->write($sessionId, 'data'));
+        $date3 = $this->connection->fetchColumn(
+            'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
+        );
+
+        $I->assertSame($date2, $date3);
+    }
+
+    public function lazyWriteDisabled(FunctionalTester $I): void
+    {
+        $sessionId = bin2hex(random_bytes(32));
+        $class = new Database($this->connection);
+        $class->open(codecept_output_dir(), $sessionId);
+
+        $date1 = $this->connection->fetchColumn(
+            'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
+        );
+
+        ini_set('session.lazy_write', '0');
+
+        sleep(1);
+        $I->assertTrue($class->write($sessionId, 'data'));
+        $date2 = $this->connection->fetchColumn(
+            'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
+        );
+        $I->assertNotSame($date1, $date2);
+
+        sleep(1);
+        $I->assertTrue($class->write($sessionId, 'data'));
+        $date3 = $this->connection->fetchColumn(
+            'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
+        );
+        $I->assertNotSame($date2, $date3);
     }
 }

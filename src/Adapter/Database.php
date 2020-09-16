@@ -150,17 +150,33 @@ class Database extends AbstractAdapter
      */
     public function write($sessionId, $data): bool
     {
+        if (!$this->started) {
+            return false;
+        }
+
         $row = $this->connection->fetchOne(
             sprintf(
-                'SELECT COUNT(*) FROM %s WHERE %s = ?',
+                'SELECT %s AS data FROM %s WHERE %s = ?',
+                $this->connection->escapeIdentifier($this->columns['data']),
                 $this->getTableName(),
                 $this->connection->escapeIdentifier($this->columns['session_id'])
             ),
-            Enum::FETCH_NUM,
+            Enum::FETCH_ASSOC,
             [$sessionId]
         );
 
-        if ($row[0] > 0) {
+        if (!empty($row)) {
+            /**
+             * When set to 1, means that session data is only rewritten if it changes.
+             * Defaults to 1, enabled.
+             *
+             * @see https://www.php.net/manual/en/session.configuration.php#ini.session.lazy-write
+             */
+            $lazyWrite = (bool)ini_get('session.lazy_write');
+            if ($lazyWrite === true && $row['data'] === $data) {
+                return false;
+            }
+
             return $this->connection->execute(
                 sprintf(
                     'UPDATE %s SET %s = ?, %s = ? WHERE %s = ?',
@@ -171,10 +187,6 @@ class Database extends AbstractAdapter
                 ),
                 [$data, date('Y-m-d H:i:s'), $sessionId]
             );
-        }
-
-        if (!$this->started) {
-            return false;
         }
 
         return $this->connection->execute(
