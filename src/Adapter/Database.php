@@ -174,7 +174,7 @@ class Database extends AbstractAdapter
              */
             $lazyWrite = (bool)ini_get('session.lazy_write');
             if ($lazyWrite === true && $row['data'] === $data) {
-                return false;
+                return true;
             }
 
             return $this->connection->execute(
