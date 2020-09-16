@@ -152,7 +152,7 @@ SQL;
         $I->assertNotSame($date1, $date2);
 
         sleep(1);
-        $I->assertFalse($class->write($sessionId, 'data'));
+        $I->assertTrue($class->write($sessionId, 'data'));
         $date3 = $this->connection->fetchColumn(
             'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
         );
