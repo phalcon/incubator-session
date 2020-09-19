@@ -1,5 +1,11 @@
 # Phalcon\Incubator\Session
 
+[![Discord](https://img.shields.io/discord/310910488152375297?label=Discord)](http://phalcon.link/discord)
+[![Packagist Version](https://img.shields.io/packagist/v/phalcon/incubator-session)](https://packagist.org/packages/phalcon/incubator-session)
+[![PHP from Packagist](https://img.shields.io/packagist/php-v/phalcon/incubator-session)](https://packagist.org/packages/phalcon/incubator-session)
+[![codecov](https://codecov.io/gh/phalcon/incubator-session/branch/master/graph/badge.svg)](https://codecov.io/gh/phalcon/incubator-session)
+[![Packagist](https://img.shields.io/packagist/dd/phalcon/incubator-session)](https://packagist.org/packages/phalcon/incubator-session/stats)
+
 Usage examples of the adapters available here:
 
 
