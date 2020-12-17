@@ -6,8 +6,9 @@
 [![codecov](https://codecov.io/gh/phalcon/incubator-session/branch/master/graph/badge.svg)](https://codecov.io/gh/phalcon/incubator-session)
 [![Packagist](https://img.shields.io/packagist/dd/phalcon/incubator-session)](https://packagist.org/packages/phalcon/incubator-session/stats)
 
-Usage examples of the adapters available here:
+## Issues tracker
 
+https://github.com/phalcon/incubator/issues
 
 ## Database
 
