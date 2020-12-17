@@ -189,10 +189,15 @@ class Database extends AbstractAdapter
             );
         }
 
-        return $this->connection->insertAsDict($this->getTableName(), [
-            $this->columns['session_id'] => $sessionId,
-            $this->columns['data'] => $data,
-        ]);
+        return $this->connection->execute(
+            sprintf(
+                'INSERT INTO %s (%s, %s) VALUES (?, ?)',
+                $this->getTableName(),
+                $this->connection->escapeIdentifier($this->columns['session_id']),
+                $this->connection->escapeIdentifier($this->columns['data'])
+            ),
+            [$sessionId, $data]
+        );
     }
 
     /**
