@@ -156,7 +156,7 @@ class Database extends AbstractAdapter
 
         $row = $this->connection->fetchOne(
             sprintf(
-                'SELECT %s AS data FROM %s WHERE %s = ?',
+                $this->connection->forUpdate('SELECT %s AS data FROM %s WHERE %s = ?'),
                 $this->connection->escapeIdentifier($this->columns['data']),
                 $this->getTableName(),
                 $this->connection->escapeIdentifier($this->columns['session_id'])
