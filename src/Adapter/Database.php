@@ -154,6 +154,12 @@ class Database extends AbstractAdapter
             return false;
         }
 
+        /**
+         * Locking reads are only possible when autocommit is disabled,
+         * either by beginning transaction with START TRANSACTION or by
+         * setting autocommit to 0.
+         */
+
         $this->connection->begin();
 
         $row = $this->connection->fetchOne(
