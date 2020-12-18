@@ -154,6 +154,8 @@ class Database extends AbstractAdapter
             return false;
         }
 
+        $this->connection->begin();
+
         $row = $this->connection->fetchOne(
             sprintf(
                 $this->connection->forUpdate('SELECT %s AS data FROM %s WHERE %s = ?'),
@@ -174,10 +176,12 @@ class Database extends AbstractAdapter
              */
             $lazyWrite = (bool)ini_get('session.lazy_write');
             if ($lazyWrite === true && $row['data'] === $data) {
+                $this->connection->rollback();
+
                 return true;
             }
 
-            return $this->connection->execute(
+            $update = $this->connection->execute(
                 sprintf(
                     'UPDATE %s SET %s = ?, %s = ? WHERE %s = ?',
                     $this->getTableName(),
@@ -187,9 +191,13 @@ class Database extends AbstractAdapter
                 ),
                 [$data, date('Y-m-d H:i:s'), $sessionId]
             );
+
+            $this->connection->commit();
+
+            return $update;
         }
 
-        return $this->connection->execute(
+        $insert = $this->connection->execute(
             sprintf(
                 'INSERT INTO %s (%s, %s) VALUES (?, ?)',
                 $this->getTableName(),
@@ -198,6 +206,10 @@ class Database extends AbstractAdapter
             ),
             [$sessionId, $data]
         );
+
+        $this->connection->commit();
+
+        return $insert;
     }
 
     /**
