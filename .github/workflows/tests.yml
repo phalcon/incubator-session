@@ -7,7 +7,7 @@ jobs:
     name: PHP ${{ matrix.php-versions }}
     runs-on: ubuntu-latest
     env:
-      extensions: mbstring, intl, json, phalcon4, redis, mongodb, xdebug
+      extensions: mbstring, intl, json, phalcon5, redis, mongodb, xdebug
       key: cache-v0.0.2
     services:
       mongodb:
@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.2', '7.3', '7.4']
+        php-versions: ["8.0"]
     steps:
       - uses: actions/checkout@v1
 
