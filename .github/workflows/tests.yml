@@ -45,7 +45,7 @@ jobs:
           tools: pecl
 
       - name: Phalcon version
-        run: php -r 'echo Phalcon\Version::get() . PHP_EOL;'
+        run: php -r 'echo Phalcon\Support\Version::get() . PHP_EOL;'
 
       - name: Get Composer Cache Directory
         id: composer-cache
