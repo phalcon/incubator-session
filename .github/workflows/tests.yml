@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       extensions: mbstring, intl, json, phalcon-5.0.0beta2, redis, mongodb, xdebug
-      key: cache-v0.0.2
+      key: cache-v1
     services:
       mongodb:
         image: mongo:3.4.23
@@ -43,9 +43,6 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           extensions: ${{ env.extensions }}
           tools: pecl
-
-      - name: Phalcon version
-        run: php -r 'echo Phalcon\Support\Version::get() . PHP_EOL;'
 
       - name: Get Composer Cache Directory
         id: composer-cache
