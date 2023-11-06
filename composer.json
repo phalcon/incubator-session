@@ -26,17 +26,18 @@
         "forum": "https://forum.phalcon.io"
     },
     "require": {
-        "php": ">=7.2",
-        "ext-phalcon": "^4.0"
+        "php": ">=7.4",
+        "ext-phalcon": "^5.0"
     },
     "require-dev": {
-        "phalcon/ide-stubs": "^4.0",
-        "vimeo/psalm": "^4.1",
-        "squizlabs/php_codesniffer": "^3.5",
+        "ext-mongodb": "*",
+        "phalcon/ide-stubs": "^5.0",
+        "vimeo/psalm": "^5.15",
+        "squizlabs/php_codesniffer": "^3.7",
         "codeception/codeception": "^4.1",
-        "codeception/module-asserts": "^1.0.0",
-        "mongodb/mongodb": "^1.6",
-        "phpstan/phpstan": "^0.12.18"
+        "codeception/module-asserts": "^2.0",
+        "mongodb/mongodb": "^1.16",
+        "phpstan/phpstan": "^1.10"
     },
     "autoload": {
         "psr-4": {
@@ -54,13 +55,10 @@
         "exclude": [
             "/.github",
             "/tests",
-            ".codacy.yml",
             ".codecov.yml",
-            "CHANGELOG.md",
             "codeception.yml",
             "phpcs.xml.dist",
             "phpstan.neon.dist",
-            "phpunit.xml.dist",
             "psalm.xml.dist"
         ]
     }
