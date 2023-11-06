@@ -44,9 +44,6 @@ jobs:
           extensions: ${{ env.extensions }}
           tools: pecl
 
-      - name: Phalcon version
-        run: php -r 'echo Phalcon\Version::get() . PHP_EOL;'
-
       - name: Get Composer Cache Directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
