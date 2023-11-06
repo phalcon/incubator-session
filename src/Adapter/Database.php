@@ -224,9 +224,7 @@ class Database extends AbstractAdapter
         );
     }
 
-    /**
-     * @param mixed $maxLifeTime
-     */
+    #[\ReturnTypeWillChange]
     public function gc($maxLifeTime): bool
     {
         return $this->connection->execute(

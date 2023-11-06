@@ -112,11 +112,7 @@ class Mongo extends AbstractAdapter
         return $deleteResult->getDeletedCount() > 0;
     }
 
-    /**
-     * @param mixed $maxLifetime
-     * @return bool
-     * @throws Exception
-     */
+    #[\ReturnTypeWillChange]
     public function gc($maxLifetime): bool
     {
         $date = new DateTime();
