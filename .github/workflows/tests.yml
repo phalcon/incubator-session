@@ -7,7 +7,7 @@ jobs:
     name: PHP ${{ matrix.php-versions }}
     runs-on: ubuntu-latest
     env:
-      extensions: mbstring, intl, json, phalcon4, redis, mongodb, xdebug
+      extensions: mbstring, intl, json, phalcon, redis, mongodb, xdebug
       key: cache-v0.0.2
     services:
       mongodb:
@@ -17,9 +17,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.2', '7.3', '7.4']
+        php-versions: ['7.4', '8.0', '8.1', '8.2']
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       - name: Setup cache environment
         id: cache-env
@@ -30,7 +30,7 @@ jobs:
           key: ${{ env.key }}
 
       - name: Cache extensions
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ${{ steps.cache-env.outputs.dir }}
           key: ${{ steps.cache-env.outputs.key }}
@@ -52,7 +52,7 @@ jobs:
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
       - name: Cache composer dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
