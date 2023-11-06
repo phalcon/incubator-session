@@ -1,4 +1,4 @@
-# Phalcon\Incubator\Session
+# Phalcon Session Extra Adapters
 
 [![Discord](https://img.shields.io/discord/310910488152375297?label=Discord)](http://phalcon.link/discord)
 [![Packagist Version](https://img.shields.io/packagist/v/phalcon/incubator-session)](https://packagist.org/packages/phalcon/incubator-session)
