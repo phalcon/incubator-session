@@ -27,29 +27,20 @@ class Database extends AbstractAdapter
 
     /**
      * Database connection
-     *
-     * @var DbAbstractAdapter
      */
-    protected $connection;
+    protected DbAbstractAdapter $connection;
 
     /**
      * Database Table name
-     *
-     * @var string
      */
-    protected $tableName;
+    protected string $tableName;
 
     /**
      * Check if session started
-     *
-     * @var bool
      */
-    protected $started = false;
+    protected bool $started = false;
 
-    /**
-     * @var array
-     */
-    protected $defaultColumns = [
+    protected array $defaultColumns = [
         'session_id',
         'data',
         'created_at',
@@ -60,16 +51,9 @@ class Database extends AbstractAdapter
      * Final columns
      *
      * After applying user custom columns from $columns
-     *
-     * @var array
      */
-    protected $columns = [];
+    protected array $columns = [];
 
-    /**
-     * @param DbAbstractAdapter $connection
-     * @param string $tableName
-     * @param array $columns
-     */
     public function __construct(
         DbAbstractAdapter $connection,
         string $tableName = self::DEFAULT_TABLE_NAME,
@@ -242,7 +226,6 @@ class Database extends AbstractAdapter
 
     /**
      * @param mixed $maxLifeTime
-     * @return bool
      */
     public function gc($maxLifeTime): bool
     {
@@ -259,8 +242,6 @@ class Database extends AbstractAdapter
 
     /**
      * Get escaped table name
-     *
-     * @return string
      */
     protected function getTableName(): string
     {
@@ -269,8 +250,6 @@ class Database extends AbstractAdapter
 
     /**
      * Pick default columns and merge with custom (if any passed)
-     *
-     * @param array $columns
      */
     protected function prepareColumns(array $columns): void
     {

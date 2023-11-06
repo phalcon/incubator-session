@@ -15,6 +15,7 @@ namespace Phalcon\Incubator\Session\Adapter;
 
 use DateInterval;
 use DateTime;
+use Exception;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Collection;
 use Phalcon\Session\Adapter\AbstractAdapter;
@@ -24,23 +25,13 @@ use Phalcon\Session\Adapter\AbstractAdapter;
  */
 class Mongo extends AbstractAdapter
 {
-    /**
-     * @var Collection
-     */
-    protected $collection;
+    protected Collection $collection;
 
     /**
      * Current session data
-     *
-     * @var string|null
      */
-    protected $data = null;
+    protected ?string $data = null;
 
-    /**
-     * Class constructor.
-     *
-     * @param Collection $collection
-     */
     public function __construct(Collection $collection)
     {
         $this->collection = $collection;
@@ -51,32 +42,20 @@ class Mongo extends AbstractAdapter
             [$this, 'read'],
             [$this, 'write'],
             [$this, 'destroy'],
-            [$this, 'gc']
+            [$this, 'gc'],
         );
     }
 
-    /**
-     * @param string $savePath
-     * @param string $sessionName
-     * @return bool
-     */
     public function open($savePath, $sessionName): bool
     {
         return true;
     }
 
-    /**
-     * @return bool
-     */
     public function close(): bool
     {
         return true;
     }
 
-    /**
-     * @param string $sessionId
-     * @return string
-     */
     public function read($sessionId): string
     {
         $sessionData = $this->collection->findOne([
@@ -124,7 +103,6 @@ class Mongo extends AbstractAdapter
 
     /**
      * @param string $sessionId
-     * @return bool
      */
     public function destroy($sessionId): bool
     {
@@ -137,7 +115,7 @@ class Mongo extends AbstractAdapter
     /**
      * @param mixed $maxLifetime
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function gc($maxLifetime): bool
     {
