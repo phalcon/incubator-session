@@ -1,0 +1,27 @@
+# For local development only.
+version: '3.5'
+
+services:
+  incubator-session:
+    container_name: phalcon-incubator-session
+    build: .docker/
+    working_dir: /srv
+    tty: true
+    volumes:
+      - .:/srv
+
+  mongodb:
+    image: mongo:latest
+    container_name: phalcon-incubator-session-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+
+volumes:
+  mongodb_data:
+    name: mongodb_data
