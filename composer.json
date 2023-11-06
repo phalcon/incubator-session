@@ -53,12 +53,13 @@
     "prefer-stable": true,
     "archive": {
         "exclude": [
+            "/.docker",
             "/.github",
             "/tests",
             ".codecov.yml",
             "codeception.yml",
+            "docker-compose.yml",
             "phpcs.xml.dist",
-            "phpstan.neon.dist",
             "psalm.xml.dist"
         ]
     }
