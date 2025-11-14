@@ -1,6 +1,4 @@
 # For local development only.
-version: '3.5'
-
 services:
   incubator-session:
     container_name: phalcon-incubator-session
