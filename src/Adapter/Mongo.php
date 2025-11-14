@@ -15,7 +15,6 @@ namespace Phalcon\Incubator\Session\Adapter;
 
 use DateInterval;
 use DateTime;
-use Exception;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Collection;
 use Phalcon\Session\Adapter\AbstractAdapter;
@@ -112,11 +111,16 @@ class Mongo extends AbstractAdapter
         return $deleteResult->getDeletedCount() > 0;
     }
 
-    #[\ReturnTypeWillChange]
-    public function gc($maxLifetime): bool
+    /**
+     * Garbage Collector
+     *
+     * @param int $max_lifetime
+     * @return int|false
+     */
+    public function gc(int $max_lifetime): int|false
     {
         $date = new DateTime();
-        $date->sub(new DateInterval('PT' . $maxLifetime . 'S'));
+        $date->sub(new DateInterval('PT' . $max_lifetime . 'S'));
         $minAgeMongo = new UTCDateTime($date->getTimestamp());
 
         $deleteResult = $this->collection->deleteMany([
@@ -125,6 +129,6 @@ class Mongo extends AbstractAdapter
             ],
         ]);
 
-        return $deleteResult->getDeletedCount() > 0;
+        return $deleteResult->getDeletedCount();
     }
 }

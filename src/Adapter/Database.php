@@ -224,18 +224,29 @@ class Database extends AbstractAdapter
         );
     }
 
-    #[\ReturnTypeWillChange]
-    public function gc($maxLifeTime): bool
+    /**
+     * Garbage Collector
+     *
+     * @param int $max_lifetime
+     * @return int|false
+     */
+    public function gc(int $max_lifetime): int|false
     {
-        return $this->connection->execute(
+        $result = $this->connection->execute(
             sprintf(
                 'DELETE FROM %s WHERE COALESCE(%s, %s) < ?',
                 $this->getTableName(),
                 $this->connection->escapeIdentifier($this->columns['modified_at']),
                 $this->connection->escapeIdentifier($this->columns['created_at'])
             ),
-            [date('Y-m-d H:i:s', strtotime('-' . $maxLifeTime . ' seconds'))]
+            [date('Y-m-d H:i:s', strtotime('-' . $max_lifetime . ' seconds'))]
         );
+
+        if ($result === false) {
+            return false;
+        }
+
+        return $this->connection->affectedRows();
     }
 
     /**
