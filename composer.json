@@ -34,9 +34,8 @@
         "phalcon/ide-stubs": "^5.0",
         "vimeo/psalm": "^5.15",
         "squizlabs/php_codesniffer": "^3.7",
-        "codeception/codeception": "^4.1",
-        "codeception/module-asserts": "^2.0",
-        "mongodb/mongodb": "^1.16",
+        "phpunit/phpunit": "^10.0",
+        "mongodb/mongodb": "^2.1",
         "phpstan/phpstan": "^1.10"
     },
     "autoload": {
@@ -46,7 +45,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Phalcon\\Incubator\\Session\\Tests\\Unit\\": "tests/unit/"
+            "Tests\\": "tests/"
         }
     },
     "minimum-stability": "dev",
@@ -57,7 +56,6 @@
             "/.github",
             "/tests",
             ".codecov.yml",
-            "codeception.yml",
             "docker-compose.yml",
             "phpcs.xml.dist",
             "psalm.xml.dist"

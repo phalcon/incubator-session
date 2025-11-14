@@ -11,25 +11,29 @@
 
 declare(strict_types=1);
 
-namespace Phalcon\Incubator\Session\Tests\Functional\Adapter;
+namespace Tests\Adapter;
 
-use FunctionalTester;
+use Phalcon\Session\Adapter\AbstractAdapter;
+use PHPUnit\Framework\TestCase;
 use Phalcon\Db\Adapter\Pdo\Sqlite;
 use Phalcon\Incubator\Session\Adapter\Database;
 
-final class DatabaseCest
+final class DatabaseTest extends TestCase
 {
-    private $connection;
+    private Sqlite $connection;
+    private string $dbFile;
 
-    public function __construct()
+    protected function setUp(): void
     {
-        $dbFile = codecept_output_dir('test.sqlite');
-        if (file_exists($dbFile)) {
-            unlink($dbFile);
+        parent::setUp();
+
+        $this->dbFile = sys_get_temp_dir() . '/test_' . uniqid() . '.sqlite';
+        if (file_exists($this->dbFile)) {
+            unlink($this->dbFile);
         }
 
         $this->connection = new Sqlite([
-            'dbname' => $dbFile,
+            'dbname' => $this->dbFile,
         ]);
 
         $tableName = Database::DEFAULT_TABLE_NAME;
@@ -46,97 +50,113 @@ SQL;
         $this->connection->execute($sql);
     }
 
-    public function setCustomColumn(FunctionalTester $I): void
+    protected function tearDown(): void
+    {
+        if (file_exists($this->dbFile)) {
+            unlink($this->dbFile);
+        }
+
+        parent::tearDown();
+    }
+
+    public function testImplementation(): void
+    {
+        $class = $this->createMock(Database::class);
+
+        $this->assertInstanceOf(AbstractAdapter::class, $class);
+    }
+
+    public function testSetCustomColumn(): void
     {
         $class = new Database($this->connection, Database::DEFAULT_TABLE_NAME, [
             'session_id' => 'session_id',
         ]);
 
-        $I->assertTrue($class->open(codecept_output_dir(), 'session-name'));
+        $this->assertTrue($class->open(sys_get_temp_dir(), 'session-name'));
     }
 
-    public function open(FunctionalTester $I): void
+    public function testOpen(): void
     {
         $class = new Database($this->connection);
 
-        $I->assertTrue($class->open(codecept_output_dir(), 'session-name'));
+        $this->assertTrue($class->open(sys_get_temp_dir(), 'session-name'));
     }
 
-    public function close(FunctionalTester $I): void
+    public function testClose(): void
     {
         $class = new Database($this->connection);
 
-        $I->assertTrue($class->close());
+        $this->assertTrue($class->close());
     }
 
-    public function readEmpty(FunctionalTester $I): void
+    public function testReadEmpty(): void
     {
         $class = new Database($this->connection);
 
-        $I->assertSame('', $class->read('un-existed'));
+        $this->assertSame('', $class->read('un-existed'));
     }
 
-    public function writeNotOpen(FunctionalTester $I): void
-    {
-        $sessionId = bin2hex(random_bytes(32));
-        $class = new Database($this->connection);
-
-        $I->assertFalse($class->write($sessionId, 'data'));
-    }
-
-    public function writeNew(FunctionalTester $I): void
+    public function testWriteNotOpen(): void
     {
         $sessionId = bin2hex(random_bytes(32));
         $class = new Database($this->connection);
-        $class->open(codecept_output_dir(), $sessionId);
 
-        $I->assertTrue($class->write($sessionId, 'data'));
+        $this->assertFalse($class->write($sessionId, 'data'));
     }
 
-    public function writeUpdate(FunctionalTester $I): void
+    public function testWriteNew(): void
+    {
+        $sessionId = bin2hex(random_bytes(32));
+        $class = new Database($this->connection);
+        $class->open(sys_get_temp_dir(), $sessionId);
+
+        $this->assertTrue($class->write($sessionId, 'data'));
+    }
+
+    public function testWriteUpdate(): void
     {
         $sessionId = bin2hex(random_bytes(32));
         $oldData = 'data';
         $newData = 'new-data';
 
         $class = new Database($this->connection);
-        $class->open(codecept_output_dir(), $sessionId);
+        $class->open(sys_get_temp_dir(), $sessionId);
 
-        $I->assertTrue($class->write($sessionId, $oldData));
-        $I->assertSame($oldData, $class->read($sessionId));
-        $I->assertTrue($class->write($sessionId, $newData));
-        $I->assertSame($newData, $class->read($sessionId));
+        $this->assertTrue($class->write($sessionId, $oldData));
+        $this->assertSame($oldData, $class->read($sessionId));
+        $this->assertTrue($class->write($sessionId, $newData));
+        $this->assertSame($newData, $class->read($sessionId));
     }
 
-    public function destroyNotStarted(FunctionalTester $I): void
+    public function testDestroyNotStarted(): void
     {
         $class = new Database($this->connection);
 
-        $I->assertTrue($class->destroy('destroy'));
+        $this->assertTrue($class->destroy('destroy'));
     }
 
-    public function destroyStarted(FunctionalTester $I): void
+    public function testDestroyStarted(): void
     {
         $sessionId = bin2hex(random_bytes(32));
         $class = new Database($this->connection);
-        $class->open(codecept_output_dir(), $sessionId);
+        $class->open(sys_get_temp_dir(), $sessionId);
         $class->write($sessionId, 'data');
 
-        $I->assertTrue($class->destroy('destroy'));
+        $this->assertTrue($class->destroy('destroy'));
     }
 
-    public function gc(FunctionalTester $I): void
+    public function testGc(): void
     {
         $class = new Database($this->connection);
 
-        $I->assertTrue($class->gc(0));
+        $this->assertTrue($class->gc(0));
     }
 
-    public function lazyWriteEnabled(FunctionalTester $I): void
+    public function testLazyWriteEnabled(): void
     {
         $sessionId = bin2hex(random_bytes(32));
         $class = new Database($this->connection);
-        $class->open(codecept_output_dir(), $sessionId);
+        $class->open(sys_get_temp_dir(), $sessionId);
 
         $date1 = $this->connection->fetchColumn(
             'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
@@ -145,26 +165,26 @@ SQL;
         ini_set('session.lazy_write', '1');
 
         sleep(1);
-        $I->assertTrue($class->write($sessionId, 'data'));
+        $this->assertTrue($class->write($sessionId, 'data'));
         $date2 = $this->connection->fetchColumn(
             'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
         );
-        $I->assertNotSame($date1, $date2);
+        $this->assertNotSame($date1, $date2);
 
         sleep(1);
-        $I->assertTrue($class->write($sessionId, 'data'));
+        $this->assertTrue($class->write($sessionId, 'data'));
         $date3 = $this->connection->fetchColumn(
             'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
         );
 
-        $I->assertSame($date2, $date3);
+        $this->assertSame($date2, $date3);
     }
 
-    public function lazyWriteDisabled(FunctionalTester $I): void
+    public function testLazyWriteDisabled(): void
     {
         $sessionId = bin2hex(random_bytes(32));
         $class = new Database($this->connection);
-        $class->open(codecept_output_dir(), $sessionId);
+        $class->open(sys_get_temp_dir(), $sessionId);
 
         $date1 = $this->connection->fetchColumn(
             'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
@@ -173,17 +193,17 @@ SQL;
         ini_set('session.lazy_write', '0');
 
         sleep(1);
-        $I->assertTrue($class->write($sessionId, 'data'));
+        $this->assertTrue($class->write($sessionId, 'data'));
         $date2 = $this->connection->fetchColumn(
             'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
         );
-        $I->assertNotSame($date1, $date2);
+        $this->assertNotSame($date1, $date2);
 
         sleep(1);
-        $I->assertTrue($class->write($sessionId, 'data'));
+        $this->assertTrue($class->write($sessionId, 'data'));
         $date3 = $this->connection->fetchColumn(
             'SELECT modified_at FROM ' . Database::DEFAULT_TABLE_NAME . ' WHERE session_id = "' . $sessionId . '"'
         );
-        $I->assertNotSame($date2, $date3);
+        $this->assertNotSame($date2, $date3);
     }
 }
