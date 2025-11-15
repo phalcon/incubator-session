@@ -1,25 +1,28 @@
-name: "Tests"
+name: "CI"
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
-  run-tests:
-    name: PHP ${{ matrix.php-versions }}
+  validate-and-test:
+    name: Static Analysis & Tests with PHP ${{ matrix.php-versions }}
     runs-on: ubuntu-latest
     env:
       extensions: mbstring, intl, json, phalcon, redis, mongodb, xdebug
-      key: cache-v0.0.2
+      key: cache-v0.0.3
     services:
       mongodb:
-        image: mongo:3.6
+        image: mongo:4.0
         ports:
           - 27017:27017
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.4', '8.0', '8.1', '8.2']
+        php-versions: ['8.1', '8.2', '8.3', '8.4']
     steps:
       - uses: actions/checkout@v5
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
 
       - name: Setup cache environment
         id: cache-env
@@ -44,27 +47,28 @@ jobs:
           extensions: ${{ env.extensions }}
           tools: pecl
 
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache composer dependencies
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-suggest
 
+      - name: Validate Code Style
+        if: always()
+        run: vendor/bin/phpcs
+
+      - name: Run Psalm
+        if: always()
+        run: vendor/bin/psalm
+
+      - name: Run PHPStan
+        if: always()
+        run: vendor/bin/phpstan analyse src
+
       - name: Run test suites
         if: success()
-        run: vendor/bin/codecept run --coverage-xml=coverage-${{ matrix.php-versions }}.xml
+        run: vendor/bin/phpunit --coverage-clover=coverage-${{ matrix.php-versions }}.xml
 
       - name: Upload coverage to Codecov
         if: success()
         uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}}
-          file: ./tests/_output/coverage-*.xml
+          file: ./coverage-*.xml

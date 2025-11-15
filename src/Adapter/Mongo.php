@@ -15,7 +15,6 @@ namespace Phalcon\Incubator\Session\Adapter;
 
 use DateInterval;
 use DateTime;
-use Exception;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Collection;
 use Phalcon\Session\Adapter\AbstractAdapter;
@@ -46,20 +45,23 @@ class Mongo extends AbstractAdapter
         );
     }
 
-    public function open($savePath, $sessionName): bool
+    #[\Override]
+    public function open($path, $name): bool
     {
         return true;
     }
 
+    #[\Override]
     public function close(): bool
     {
         return true;
     }
 
-    public function read($sessionId): string
+    #[\Override]
+    public function read($id): string
     {
         $sessionData = $this->collection->findOne([
-            '_id' => $sessionId,
+            '_id' => $id,
         ]);
 
         if (!isset($sessionData['data'])) {
@@ -72,51 +74,59 @@ class Mongo extends AbstractAdapter
     }
 
     /**
-     * @param string $sessionId
-     * @param string $sessionData
+     * @param string $id
+     * @param string $data
      * @return bool
      */
-    public function write($sessionId, $sessionData): bool
+    #[\Override]
+    public function write($id, $data): bool
     {
-        if ($this->data === $sessionData) {
+        if ($this->data === $data) {
             return true;
         }
 
-        $countDocuments = $this->collection->countDocuments(['_id' => $sessionId]);
+        $countDocuments = $this->collection->countDocuments(['_id' => $id]);
         if ($countDocuments === 0) {
             $insertResult = $this->collection->insertOne([
-                '_id' => $sessionId,
+                '_id' => $id,
                 'modified' => null,
-                'data' => $sessionData,
+                'data' => $data,
             ]);
 
             return $insertResult->getInsertedCount() > 0;
         }
 
         $updateResult = $this->collection->updateOne(
-            ['_id' => $sessionId],
-            ['$set' => ['modified' => new UTCDateTime(), 'data' => $sessionData]]
+            ['_id' => $id],
+            ['$set' => ['modified' => new UTCDateTime(), 'data' => $data]],
         );
 
         return $updateResult->getModifiedCount() > 0;
     }
 
     /**
-     * @param string $sessionId
+     * @param string $id
      */
-    public function destroy($sessionId): bool
+    #[\Override]
+    public function destroy($id): bool
     {
         $this->data = null;
-        $deleteResult = $this->collection->deleteOne(['_id' => $sessionId]);
+        $deleteResult = $this->collection->deleteOne(['_id' => $id]);
 
         return $deleteResult->getDeletedCount() > 0;
     }
 
-    #[\ReturnTypeWillChange]
-    public function gc($maxLifetime): bool
+    /**
+     * Garbage Collector
+     *
+     * @param int $max_lifetime
+     * @return int|false
+     */
+    #[\Override]
+    public function gc(int $max_lifetime): int|false
     {
         $date = new DateTime();
-        $date->sub(new DateInterval('PT' . $maxLifetime . 'S'));
+        $date->sub(new DateInterval('PT' . $max_lifetime . 'S'));
         $minAgeMongo = new UTCDateTime($date->getTimestamp());
 
         $deleteResult = $this->collection->deleteMany([
@@ -125,6 +135,6 @@ class Mongo extends AbstractAdapter
             ],
         ]);
 
-        return $deleteResult->getDeletedCount() > 0;
+        return $deleteResult->getDeletedCount();
     }
 }

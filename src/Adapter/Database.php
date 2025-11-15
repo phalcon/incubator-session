@@ -74,20 +74,19 @@ class Database extends AbstractAdapter
     }
 
     /**
-     * @param mixed $savePath
-     * @param mixed $sessionName
+     * @param mixed $path
+     * @param mixed $name
      * @return bool
      */
-    public function open($savePath, $sessionName): bool
+    #[\Override]
+    public function open($path, $name): bool
     {
         $this->started = true;
 
         return true;
     }
 
-    /**
-     * @return bool
-     */
+    #[\Override]
     public function close(): bool
     {
         $this->started = false;
@@ -96,10 +95,11 @@ class Database extends AbstractAdapter
     }
 
     /**
-     * @param string $sessionId
+     * @param string $id
      * @return string
      */
-    public function read($sessionId): string
+    #[\Override]
+    public function read($id): string
     {
         if (!$this->started) {
             return '';
@@ -116,7 +116,7 @@ class Database extends AbstractAdapter
                 $this->connection->escapeIdentifier($this->columns['created_at'])
             ),
             Enum::FETCH_NUM,
-            [$sessionId, date('Y-m-d H:i:s', strtotime('-' . $maxLifetime . ' seconds'))],
+            [$id, date('Y-m-d H:i:s', strtotime('-' . $maxLifetime . ' seconds'))],
             [Column::BIND_PARAM_STR, Column::BIND_PARAM_STR]
         );
 
@@ -128,11 +128,12 @@ class Database extends AbstractAdapter
     }
 
     /**
-     * @param string $sessionId
+     * @param string $id
      * @param string $data
      * @return bool
      */
-    public function write($sessionId, $data): bool
+    #[\Override]
+    public function write($id, $data): bool
     {
         if (!$this->started) {
             return false;
@@ -154,7 +155,7 @@ class Database extends AbstractAdapter
                 $this->connection->escapeIdentifier($this->columns['session_id'])
             ),
             Enum::FETCH_ASSOC,
-            [$sessionId]
+            [$id]
         );
 
         if (!empty($row)) {
@@ -179,7 +180,7 @@ class Database extends AbstractAdapter
                     $this->connection->escapeIdentifier($this->columns['modified_at']),
                     $this->connection->escapeIdentifier($this->columns['session_id'])
                 ),
-                [$data, date('Y-m-d H:i:s'), $sessionId]
+                [$data, date('Y-m-d H:i:s'), $id]
             );
 
             $this->connection->commit();
@@ -194,7 +195,7 @@ class Database extends AbstractAdapter
                 $this->connection->escapeIdentifier($this->columns['session_id']),
                 $this->connection->escapeIdentifier($this->columns['data'])
             ),
-            [$sessionId, $data]
+            [$id, $data]
         );
 
         $this->connection->commit();
@@ -203,10 +204,11 @@ class Database extends AbstractAdapter
     }
 
     /**
-     * @param string $sessionId
+     * @param string $id
      * @return bool
      */
-    public function destroy($sessionId): bool
+    #[\Override]
+    public function destroy($id): bool
     {
         if (!$this->started) {
             return true;
@@ -220,22 +222,34 @@ class Database extends AbstractAdapter
                 $this->getTableName(),
                 $this->connection->escapeIdentifier($this->columns['session_id'])
             ),
-            [$sessionId]
+            [$id]
         );
     }
 
-    #[\ReturnTypeWillChange]
-    public function gc($maxLifeTime): bool
+    /**
+     * Garbage Collector
+     *
+     * @param int $max_lifetime
+     * @return int|false
+     */
+    #[\Override]
+    public function gc(int $max_lifetime): int|false
     {
-        return $this->connection->execute(
+        $result = $this->connection->execute(
             sprintf(
                 'DELETE FROM %s WHERE COALESCE(%s, %s) < ?',
                 $this->getTableName(),
                 $this->connection->escapeIdentifier($this->columns['modified_at']),
                 $this->connection->escapeIdentifier($this->columns['created_at'])
             ),
-            [date('Y-m-d H:i:s', strtotime('-' . $maxLifeTime . ' seconds'))]
+            [date('Y-m-d H:i:s', strtotime('-' . $max_lifetime . ' seconds'))]
         );
+
+        if ($result === false) {
+            return false;
+        }
+
+        return $this->connection->affectedRows();
     }
 
     /**
