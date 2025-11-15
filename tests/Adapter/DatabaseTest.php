@@ -149,7 +149,7 @@ SQL;
     {
         $class = new Database($this->connection);
 
-        $this->assertTrue($class->gc(0));
+        $this->assertNotSame(false, $class->gc(0));
     }
 
     public function testLazyWriteEnabled(): void
