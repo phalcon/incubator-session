@@ -147,11 +147,11 @@ jobs:
 
       - name: Run test suites
         if: success()
-        run: vendor/bin/codecept run --coverage-xml=coverage-${{ matrix.php-versions }}.xml
+        run: vendor/bin/phpunit --coverage-clover=coverage-${{ matrix.php-versions }}.xml
 
       - name: Upload coverage to Codecov
         if: success()
         uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}}
-          file: ./tests/_output/coverage-*.xml
+          file: ./coverage-*.xml
