@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Tests\Adapter;
 
-use Phalcon\Session\Adapter\AbstractAdapter;
-use PHPUnit\Framework\TestCase;
 use MongoDB\Client;
 use Phalcon\Incubator\Session\Adapter\Mongo;
+use Phalcon\Session\Adapter\AbstractAdapter;
+use PHPUnit\Framework\TestCase;
 
 final class MongoTest extends TestCase
 {

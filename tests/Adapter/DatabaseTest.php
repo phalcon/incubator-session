@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Tests\Adapter;
 
-use Phalcon\Session\Adapter\AbstractAdapter;
-use PHPUnit\Framework\TestCase;
 use Phalcon\Db\Adapter\Pdo\Sqlite;
 use Phalcon\Incubator\Session\Adapter\Database;
+use Phalcon\Session\Adapter\AbstractAdapter;
+use PHPUnit\Framework\TestCase;
 
 final class DatabaseTest extends TestCase
 {
