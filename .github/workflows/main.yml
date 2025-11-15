@@ -11,7 +11,7 @@ jobs:
       key: cache-v0.0.3
     services:
       mongodb:
-        image: mongo:3.6
+        image: mongo:4.0
         ports:
           - 27017:27017
     strategy:
