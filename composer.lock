@@ -1815,24 +1815,26 @@
         },
         {
             "name": "phalcon/ide-stubs",
-            "version": "v5.9.3",
+            "version": "v5.23.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phalcon/ide-stubs.git",
-                "reference": "279475ec34dd07cda7e95cdbb944f3d3df035fb4"
+                "reference": "ab86f113ba8c3fb4f3b64c7583138d264975a556"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phalcon/ide-stubs/zipball/279475ec34dd07cda7e95cdbb944f3d3df035fb4",
-                "reference": "279475ec34dd07cda7e95cdbb944f3d3df035fb4",
+                "url": "https://api.github.com/repos/phalcon/ide-stubs/zipball/ab86f113ba8c3fb4f3b64c7583138d264975a556",
+                "reference": "ab86f113ba8c3fb4f3b64c7583138d264975a556",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.4"
+                "php": ">=8.1"
             },
             "require-dev": {
-                "squizlabs/php_codesniffer": "3.*",
-                "vimeo/psalm": "^3.4"
+                "pds/composer-script-names": "^1.0",
+                "pds/skeleton": "^1.0",
+                "squizlabs/php_codesniffer": "^4.0",
+                "vimeo/psalm": "^6.16"
             },
             "type": "library",
             "notification-url": "https://packagist.org/downloads/",
@@ -1864,7 +1866,7 @@
                 "stubs"
             ],
             "support": {
-                "forum": "https://forum.phalcon.io/",
+                "discussions": "https://phalcon.io/discussions/",
                 "issues": "https://github.com/phalcon/ide-stubs/issues",
                 "source": "https://github.com/phalcon/ide-stubs"
             },
@@ -1878,7 +1880,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-04-22T19:22:59+00:00"
+            "time": "2026-10-16T00:16:57+00:00"
         },
         {
             "name": "phar-io/manifest",
